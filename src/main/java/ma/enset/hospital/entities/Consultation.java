@@ -24,6 +24,6 @@ public class Consultation {
     @Temporal(TemporalType.DATE)
     private Date dateConsultation;
     private String rapport;
-    @OneToOne(mappedBy = "consultation", fetch = FetchType.LAZY)
+    @OneToOne
     private RendezVous rendezVous;
 }
