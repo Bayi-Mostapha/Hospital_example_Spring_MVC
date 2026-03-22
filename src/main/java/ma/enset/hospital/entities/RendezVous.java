@@ -1,6 +1,9 @@
 package ma.enset.hospital.entities;
 
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,6 +28,7 @@ public class RendezVous {
     @Enumerated(EnumType.STRING)
     private StatusRDV status;
     @ManyToOne
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Patient patient;
     @ManyToOne
     private Medecin medecin;
