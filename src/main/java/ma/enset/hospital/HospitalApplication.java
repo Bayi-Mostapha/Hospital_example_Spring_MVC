@@ -10,10 +10,10 @@ import ma.enset.hospital.entities.Medecin;
 import ma.enset.hospital.entities.Patient;
 import ma.enset.hospital.entities.RendezVous;
 import ma.enset.hospital.entities.StatusRDV;
-import ma.enset.hospital.repositories.ConsultationRepository;
-import ma.enset.hospital.repositories.MedecinRepository;
 import ma.enset.hospital.repositories.PatientRepository;
+import ma.enset.hospital.repositories.MedecinRepository;
 import ma.enset.hospital.repositories.RendezVousRepository;
+import ma.enset.hospital.service.IHospitalService;
 
 @SpringBootApplication
 public class HospitalApplication {
@@ -23,21 +23,22 @@ public class HospitalApplication {
 	}
 
 	@Bean
-	CommandLineRunner start(PatientRepository patientRepository, MedecinRepository medecinRepository, RendezVousRepository rendezVousRepository, ConsultationRepository consultationRepository) {
+	CommandLineRunner start(IHospitalService hospitalService, PatientRepository patientRepository,
+			MedecinRepository medecinRepository, RendezVousRepository rendezVousRepository) {
 		return args -> {
 			java.util.stream.Stream.of("Hassan", "Yassine", "Adnane").forEach(name -> {
 				Patient patient = new Patient();
 				patient.setNom(name);
 				patient.setDateNaissance(new java.sql.Date(System.currentTimeMillis()));
 				patient.setMalade(false);
-				patientRepository.save(patient);
+				hospitalService.savePatient(patient);
 			});
 			java.util.stream.Stream.of("Aymane", "Haytham", "Mostapha").forEach(name -> {
 				Medecin medecin = new Medecin();
 				medecin.setNom(name);
 				medecin.setEmail(name + "@gmail.com");
 				medecin.setSpecialite(Math.random() > 0.5 ? "Cardio" : "Dentiste");
-				medecinRepository.save(medecin);
+				hospitalService.saveMedecin(medecin);
 			});
 			Patient patient1 = patientRepository.findByNom("Hassan");
 			Medecin medecin = medecinRepository.findByNom("Aymane");
@@ -47,14 +48,14 @@ public class HospitalApplication {
 			rendezVous.setStatus(StatusRDV.PENDING);
 			rendezVous.setMedecin(medecin);
 			rendezVous.setPatient(patient1);
-			rendezVousRepository.save(rendezVous);
+			hospitalService.saveRendezVous(rendezVous);
 
 			RendezVous rendezVous1 = rendezVousRepository.findAll().get(0);
 			Consultation consultation = new Consultation();
 			consultation.setDateConsultation(new java.sql.Date(System.currentTimeMillis()));
 			consultation.setRendezVous(rendezVous1);
 			consultation.setRapport("Rapport de la consultation");
-			consultationRepository.save(consultation);
+			hospitalService.saveConsultation(consultation);
 		};
 	};
 }
