@@ -309,11 +309,43 @@
         // Book appointment form
         document.getElementById('appointmentForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            const patientId = 1; // For demo, use first patient
+            const doctorId = document.getElementById('doctorSelect').value;
+            const appointmentDate = document.getElementById('appointmentDate').value;
             const message = document.getElementById('bookMessage');
-            message.innerHTML = '<div class="error" style="background: #efe; color: #060;">Appointment booking is for demo. In production, this would save to database.</div>';
-            setTimeout(() => {
-                message.innerHTML = '';
-            }, 5000);
+            
+            if (!doctorId || !appointmentDate) {
+                message.innerHTML = '<div class="error">Please select a doctor and date</div>';
+                return;
+            }
+            
+            // Submit to backend
+            const params = new URLSearchParams();
+            params.append('patientId', patientId);
+            params.append('doctorId', doctorId);
+            params.append('appointmentDate', appointmentDate);
+            
+            fetch('/api/book-appointment', {
+                method: 'POST',
+                body: params
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    message.innerHTML = '<div class="error" style="background: #efe; color: #060;">✓ Appointment booked successfully! ID: ' + data.appointmentId + '</div>';
+                    document.getElementById('appointmentForm').reset();
+                    setTimeout(() => {
+                        loadMyAppointments();
+                        message.innerHTML = '';
+                    }, 2000);
+                } else {
+                    message.innerHTML = '<div class="error">' + data.message + '</div>';
+                }
+            })
+            .catch(error => {
+                message.innerHTML = '<div class="error">Error booking appointment: ' + error.message + '</div>';
+            });
         });
         
         // Load all data on page load
