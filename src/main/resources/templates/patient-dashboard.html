@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - Hospital Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #FF6B6B 0%, #ff5252 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 24px;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .card h2 {
+            color: #FF6B6B;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f9f9f9;
+            padding: 12px;
+            text-align: left;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #FF6B6B;
+            font-size: 13px;
+        }
+        
+        td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        
+        tr:hover {
+            background: #fafafa;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        .book-appointment {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .book-appointment h2 {
+            color: #FF6B6B;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 13px;
+        }
+        
+        select, input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+        
+        select:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #FF6B6B;
+            box-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
+        }
+        
+        .book-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #FF6B6B 0%, #ff5252 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .book-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .book-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🏥 Patient Dashboard</h1>
+        <form action="/logout" method="post" style="display: inline;">
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+    
+    <div class="container">
+        <div class="content">
+            <!-- My Info Section -->
+            <div class="card">
+                <h2>📋 My Info</h2>
+                <div id="infoContainer" class="loading">Loading...</div>
+            </div>
+            
+            <!-- My Appointments Section -->
+            <div class="card">
+                <h2>📅 My Appointments</h2>
+                <div id="appointmentsContainer" class="loading">Loading...</div>
+            </div>
+            
+            <!-- My Consultations Section -->
+            <div class="card">
+                <h2>📊 My Consultations</h2>
+                <div id="consultationsContainer" class="loading">Loading...</div>
+            </div>
+        </div>
+        
+        <!-- Book Appointment Section -->
+        <div class="book-appointment">
+            <h2>📆 Book an Appointment</h2>
+            <form id="appointmentForm">
+                <div class="form-group">
+                    <label for="doctorSelect">Select Doctor</label>
+                    <select id="doctorSelect" required>
+                        <option value="">-- Choose a doctor --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="appointmentDate">Appointment Date</label>
+                    <input type="date" id="appointmentDate" required>
+                </div>
+                
+                <button type="submit" class="book-btn">Book Appointment</button>
+            </form>
+            <div id="bookMessage" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <script>
+        function loadMyInfo() {
+            fetch('/patients')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const patient = data[0]; // For demo, show first patient
+                        let html = `
+                            <table>
+                                <tr><th>Field</th><th>Value</th></tr>
+                                <tr><td>Name</td><td>${patient.nom || 'N/A'}</td></tr>
+                                <tr><td>Birth Date</td><td>${patient.dateNaissance || 'N/A'}</td></tr>
+                                <tr><td>Status</td><td>${patient.malade ? '🔴 Ill' : '🟢 Healthy'}</td></tr>
+                                <tr><td>ID</td><td>${patient.id || 'N/A'}</td></tr>
+                            </table>
+                        `;
+                        document.getElementById('infoContainer').innerHTML = html;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('infoContainer').innerHTML = `<div class="error">Error loading info</div>`;
+                });
+        }
+        
+        function loadMyAppointments() {
+            fetch('/rendezVous')
+                .then(response => response.json())
+                .then(data => {
+                    let html = '<table><tr><th>Date</th><th>Status</th><th>Doctor</th></tr>';
+                    data.forEach(appointment => {
+                        html += `<tr>
+                            <td>${appointment.date || 'N/A'}</td>
+                            <td><strong>${appointment.status || 'N/A'}</strong></td>
+                            <td>${appointment.medecin?.nom || 'N/A'}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    document.getElementById('appointmentsContainer').innerHTML = html || '<p style="text-align: center; color: #999;">No appointments booked</p>';
+                })
+                .catch(error => {
+                    document.getElementById('appointmentsContainer').innerHTML = `<div class="error">Error loading appointments</div>`;
+                });
+        }
+        
+        function loadMyConsultations() {
+            fetch('/consultations')
+                .then(response => response.json())
+                .then(data => {
+                    let html = '<table><tr><th>Date</th><th>Report</th><th>Doctor</th></tr>';
+                    data.forEach(consultation => {
+                        html += `<tr>
+                            <td>${consultation.dateConsultation || 'N/A'}</td>
+                            <td>${(consultation.rapport || 'N/A').substring(0, 25)}...</td>
+                            <td>${consultation.rendezVous?.medecin?.nom || 'N/A'}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    document.getElementById('consultationsContainer').innerHTML = html || '<p style="text-align: center; color: #999;">No consultations</p>';
+                })
+                .catch(error => {
+                    document.getElementById('consultationsContainer').innerHTML = `<div class="error">Error loading consultations</div>`;
+                });
+        }
+        
+        function loadDoctors() {
+            fetch('/medecins')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('doctorSelect');
+                    select.innerHTML = '<option value="">-- Choose a doctor --</option>';
+                    data.forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor.id;
+                        option.textContent = `${doctor.nom} (${doctor.specialite})`;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading doctors:', error);
+                });
+        }
+        
+        // Book appointment form
+        document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = document.getElementById('bookMessage');
+            message.innerHTML = '<div class="error" style="background: #efe; color: #060;">Appointment booking is for demo. In production, this would save to database.</div>';
+            setTimeout(() => {
+                message.innerHTML = '';
+            }, 5000);
+        });
+        
+        // Load all data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMyInfo();
+            loadMyAppointments();
+            loadMyConsultations();
+            loadDoctors();
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointmentDate').min = today;
+        });
+    </script>
+</body>
+</html>
