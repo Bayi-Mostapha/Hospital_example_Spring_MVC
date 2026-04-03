@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .success {
+            background: #efe;
+            color: #060;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 Hospital Management System</h1>
+            <p class="subtitle">View and manage patients, doctors, appointments, and consultations</p>
+        </header>
+        
+        <div class="content">
+            <!-- Patients Section -->
+            <div class="card">
+                <h2>👥 Patients</h2>
+                <div id="patientsContainer" class="loading">Loading patients...</div>
+            </div>
+            
+            <!-- Doctors Section -->
+            <div class="card">
+                <h2>👨‍⚕️ Doctors</h2>
+                <div id="doctorsContainer" class="loading">Loading doctors...</div>
+            </div>
+            
+            <!-- Appointments Section -->
+            <div class="card">
+                <h2>📅 Appointments</h2>
+                <div id="appointmentsContainer" class="loading">Loading appointments...</div>
+            </div>
+            
+            <!-- Consultations Section -->
+            <div class="card">
+                <h2>📋 Consultations</h2>
+                <div id="consultationsContainer" class="loading">Loading consultations...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch Patients
+        fetch('/patients')
+            .then(response => response.json())
+            .then(data => {
+                let html = '<table><tr><th>Name</th><th>Birth Date</th><th>Status</th></tr>';
+                data.forEach(patient => {
+                    html += `<tr>
+                        <td>${patient.nom || 'N/A'}</td>
+                        <td>${patient.dateNaissance || 'N/A'}</td>
+                        <td>${patient.malade ? 'Ill' : 'Healthy'}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('patientsContainer').innerHTML = html || '<p>No patients found</p>';
+            })
+            .catch(error => {
+                document.getElementById('patientsContainer').innerHTML = `<div class="error">Error loading patients: ${error.message}</div>`;
+            });
+        
+        // Fetch Doctors
+        fetch('/medecins')
+            .then(response => response.json())
+            .then(data => {
+                let html = '<table><tr><th>Name</th><th>Email</th><th>Specialty</th></tr>';
+                data.forEach(doctor => {
+                    html += `<tr>
+                        <td>${doctor.nom || 'N/A'}</td>
+                        <td>${doctor.email || 'N/A'}</td>
+                        <td>${doctor.specialite || 'N/A'}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('doctorsContainer').innerHTML = html || '<p>No doctors found</p>';
+            })
+            .catch(error => {
+                document.getElementById('doctorsContainer').innerHTML = `<div class="error">Error loading doctors</div>`;
+            });
+        
+        // Fetch Appointments
+        fetch('/rendezVous')
+            .then(response => response.json())
+            .then(data => {
+                let html = '<table><tr><th>Date</th><th>Status</th><th>Doctor</th><th>Patient</th></tr>';
+                data.forEach(appointment => {
+                    html += `<tr>
+                        <td>${appointment.date || 'N/A'}</td>
+                        <td>${appointment.status || 'N/A'}</td>
+                        <td>${appointment.medecin?.nom || 'N/A'}</td>
+                        <td>${appointment.patient?.nom || 'N/A'}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('appointmentsContainer').innerHTML = html || '<p>No appointments found</p>';
+            })
+            .catch(error => {
+                document.getElementById('appointmentsContainer').innerHTML = `<div class="error">Error loading appointments</div>`;
+            });
+        
+        // Fetch Consultations
+        fetch('/consultations')
+            .then(response => response.json())
+            .then(data => {
+                let html = '<table><tr><th>Date</th><th>Report</th><th>Appointment</th></tr>';
+                data.forEach(consultation => {
+                    html += `<tr>
+                        <td>${consultation.dateConsultation || 'N/A'}</td>
+                        <td>${consultation.rapport || 'N/A'}</td>
+                        <td>${consultation.rendezVous?.id || 'N/A'}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('consultationsContainer').innerHTML = html || '<p>No consultations found</p>';
+            })
+            .catch(error => {
+                document.getElementById('consultationsContainer').innerHTML = `<div class="error">Error loading consultations</div>`;
+            });
+    </script>
+</body>
+</html>
